@@ -1,0 +1,13 @@
+version: '3.8'
+
+services:
+  app:
+    build: .
+    ports:
+      - "8000:8000" # Maps port 8000 of the container to port 8000 on the host
+    env_file:
+      - .env # Load environment variables from .env file
+    stdin_open: true  # Keep stdin open
+    tty: true         # Allocate a pseudo-TTY
+    volumes:
+      - .:/app # Mounts the current directory to /app in the container
