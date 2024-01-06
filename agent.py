@@ -1,10 +1,15 @@
 # Import all the necessary libraries
+import logging
 from dotenv import load_dotenv
 from langchain_community.chat_models import ChatOpenAI
 from langchain.prompts import ChatPromptTemplate, MessagesPlaceholder
 from langchain.agents.format_scratchpad import format_to_openai_function_messages
 from langchain.agents import AgentExecutor
 from langchain.agents.output_parsers import OpenAIFunctionsAgentOutputParser
+from langchain_core.messages import AIMessage, HumanMessage
+
+# Setup logging
+logging.basicConfig(level=logging.INFO)
 
 # Load the environment variables
 load_dotenv()
@@ -41,6 +46,21 @@ agent = (
 agent_executor = AgentExecutor(agent=agent, tools=tools, verbose=True)
 
 # Run the agent
-user_task = "What would be the AI equivalent of Hello World?"
-output = agent_executor.invoke({"input": user_task, "chat_history": chat_history})
-print(output['output'])
+def process_user_task(user_task, chat_history):
+    """
+    Process the user task using the agent and update the chat history.
+    
+    :param user_task: The task input by the user.
+    :param chat_history: The current chat history.
+    :return: The output from the agent.
+    """
+    try:
+        result = agent_executor.invoke({"input": user_task, "chat_history": chat_history})
+        chat_history.extend([
+            HumanMessage(content=user_task),
+            AIMessage(content=result["output"]),
+        ])
+        return result["output"]
+    except Exception as e:
+        logging.error(f"Error in process_user_task: {e}")
+        return "An error occurred while processing the task."

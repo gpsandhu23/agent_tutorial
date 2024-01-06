@@ -1,3 +1,4 @@
 openai
 langchain
 python-dotenv
+slack_bolt
